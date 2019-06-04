@@ -4,11 +4,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker_modern/image_picker_modern.dart';
 import 'package:http/http.dart' as http;
-import 'package:crypt/crypt.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-final String baseURL = "http://192.168.1.100:3000/api";
+final String baseURL = "http://192.168.1.102:3000/api";
 
 class SignUp extends StatefulWidget {
   @override
@@ -151,17 +150,12 @@ class _SignUpState extends State<SignUp> {
         duration: Duration(
           minutes: 1,
         )));
-
     String base64Image = base64Encode(profilePic.readAsBytesSync());
-    // String fileExtension = profilePic.path.split(".").last;
-    // print(fileExtension);
-    var encryptedPassword =
-        Crypt.sha256(_passwordController.text + "@1234!").toString();
     http.post("$baseURL/signup", body: {
       "profilePic": base64Image,
       "userName": _userNameController.text,
       "email": _emailController.text,
-      "password": encryptedPassword,
+      "password": _passwordController.text,
     }).then((res) {
       Map<String, dynamic> json = jsonDecode(res.body);
       Scaffold.of(key.currentContext).hideCurrentSnackBar();

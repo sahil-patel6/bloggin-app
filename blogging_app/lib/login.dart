@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:crypt/crypt.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-final String baseURL = "http://192.168.1.100:3000/api";
+final String baseURL = "http://192.168.1.102:3000/api";
 
 class Login extends StatefulWidget {
   @override
@@ -63,7 +62,7 @@ class _LoginState extends State<Login> {
                   height: 20,
                 ),
                 RaisedButton(
-                  onPressed: signUp,
+                  onPressed: login,
                   child: Text("Login"),
                 ),
                 SizedBox(
@@ -101,25 +100,22 @@ class _LoginState extends State<Login> {
     return true;
   }
 
-  void signUp() {
+  void login() {
     if (!validate()) return;
     Scaffold.of(key.currentContext).hideCurrentSnackBar();
     print(_emailController.text);
     print(_passwordController.text);
     Scaffold.of(key.currentContext).showSnackBar(SnackBar(
-        content: Text("Loggin in!!!"),
+        content: Text("Logging in!!!"),
         duration: Duration(
           minutes: 1,
         )));
-    // String fileExtension = profilePic.path.split(".").last;
-    // print(fileExtension);
-    var encryptedPassword =
-        Crypt.sha256(_passwordController.text + "@1234!").toString();
     http.post("$baseURL/login", body: {
       "email": _emailController.text,
-      "password": encryptedPassword,
+      "password": _passwordController.text,
     }).then((res) {
       Map<String, dynamic> json = jsonDecode(res.body);
+      print(json);
       Scaffold.of(key.currentContext).hideCurrentSnackBar();
       Scaffold.of(key.currentContext).showSnackBar(SnackBar(
         content: Text(json['message']),
@@ -147,6 +143,8 @@ class _LoginState extends State<Login> {
       version: 1,
     );
     final Database db = await database;
+    int changes = await db.delete("user");
+    print(changes);
     int result = await db.insert("user",
         {'userID': userID, 'name': name, 'email': _emailController.text},
         conflictAlgorithm: ConflictAlgorithm.replace);
