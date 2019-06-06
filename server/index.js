@@ -11,31 +11,33 @@ const dbName = "myproject";
 const client = new MongoClient(url, { useNewUrlParser: true });
 var db;
 
-client.connect(function (err) {
+client.connect(function(err) {
   console.log("Connected successfully to server");
 
   db = client.db(dbName);
-  // db.collection("users").deleteMany({});
+  db.collection("users").deleteMany({});
   var result = db
     .collection("users")
     .find({})
     .count()
     .then(value => console.log(value));
-  db.collection("users").find({}).forEach(doc => {
-    console.log(doc);
-  })
+  db.collection("users")
+    .find({})
+    .forEach(doc => {
+      console.log(doc);
+    });
 
-  var signup = require('./Routes/signup')(app, db);
-  var login = require('./Routes/login')(app, db);
+  var signup = require("./Routes/signup")(app, db);
+  var login = require("./Routes/login")(app, db);
+  var verify = require("./Routes/verify")(app, db);
+  var verficationEmail = require("./Routes/sendVerificationEmail")(app, db);
 });
-
-
 
 var port = process.env.port || 3000;
 
 app.use(express.static("public"));
 
-app.get("/api", function (req, res) {
+app.get("/api", function(req, res) {
   res.send("Welcome To Blogging App API");
 });
 app.listen(3000, () => {

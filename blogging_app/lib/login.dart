@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-
-final String baseURL = "http://192.168.1.102:3000/api";
+import './generalUtility.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -122,7 +121,7 @@ class _LoginState extends State<Login> {
       ));
       if (json['userID'] != null) {
         print(json['userID']);
-        addUserToDatabase(json['userID'], json['name']);
+        addUserToDatabase(json['userID'], json['name'], json['isVerified']);
       }
     }).catchError((err) {
       print(err);
@@ -132,12 +131,12 @@ class _LoginState extends State<Login> {
     });
   }
 
-  void addUserToDatabase(String userID, String name) async {
+  void addUserToDatabase(String userID, String name, String isVerified) async {
     final Future<Database> database = openDatabase(
       join(await getDatabasesPath(), 'user.db'),
       onCreate: (db, version) {
         return db.execute(
-          "CREATE TABLE user(userID TEXT, name TEXT, email TEXT,)",
+          "CREATE TABLE user(userID TEXT, name TEXT, email TEXT,isVerified TEXT)",
         );
       },
       version: 1,
@@ -145,8 +144,14 @@ class _LoginState extends State<Login> {
     final Database db = await database;
     int changes = await db.delete("user");
     print(changes);
-    int result = await db.insert("user",
-        {'userID': userID, 'name': name, 'email': _emailController.text},
+    int result = await db.insert(
+        "user",
+        {
+          'userID': userID,
+          'name': name,
+          'email': _emailController.text,
+          'isVerified': isVerified
+        },
         conflictAlgorithm: ConflictAlgorithm.replace);
     print(result);
   }

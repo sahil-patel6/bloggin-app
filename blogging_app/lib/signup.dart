@@ -6,8 +6,8 @@ import 'package:image_picker_modern/image_picker_modern.dart';
 import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-
-final String baseURL = "http://192.168.1.102:3000/api";
+import './VerifyEmail.dart';
+import './generalUtility.dart';
 
 class SignUp extends StatefulWidget {
   @override
@@ -178,8 +178,9 @@ class _SignUpState extends State<SignUp> {
     final Future<Database> database = openDatabase(
       join(await getDatabasesPath(), 'user.db'),
       onCreate: (db, version) {
+        print("Creating new table");
         return db.execute(
-          "CREATE TABLE user(userID TEXT, name TEXT, email TEXT,)",
+          "CREATE TABLE user(userID TEXT, name TEXT, email TEXT, isVerified TEXT)",
         );
       },
       version: 1,
@@ -192,10 +193,17 @@ class _SignUpState extends State<SignUp> {
         {
           'userID': userID,
           'name': _userNameController.text,
-          'email': _emailController.text
+          'email': _emailController.text,
+          'isVerified': "NO",
         },
         conflictAlgorithm: ConflictAlgorithm.replace);
     print(result);
+    Navigator.push(
+        key.currentContext,
+        MaterialPageRoute(
+            builder: (context) => VerifyEmail(
+                  email: _emailController.text,
+                )));
   }
 
   void selectImage() async {

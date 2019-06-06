@@ -19,7 +19,8 @@ module.exports = function(app, db) {
                   res.send({
                     message: "Logged in successfully",
                     userID: doc._id.toString(),
-                    name: doc.userName
+                    name: doc.userName,
+                    isVerified: doc.isVerified ? "YES" : "NO"
                   });
                   res.end();
                 } else {

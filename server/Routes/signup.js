@@ -10,8 +10,6 @@ module.exports = function(app, db) {
     var password = req.body.password;
     var realFile = Buffer.from(img, "base64");
     bcrypt.hash(password, 10, (err, encryptedPassword) => {
-      console.log(err);
-
       db.collection("users")
         .find({ email: email })
         .count()
@@ -24,10 +22,10 @@ module.exports = function(app, db) {
                 password: encryptedPassword,
                 totalNumberOfPosts: 0,
                 listOfBookmarkedPosts: [],
-                totalPostViewed: 0,
-                totalPostLiked: 0,
                 listOfLikedPosts: [],
-                listOfPosts: []
+                listOfPosts: [],
+                isVerified: false,
+                verificationCode: ""
               })
               .then(value => {
                 fs.writeFile(
