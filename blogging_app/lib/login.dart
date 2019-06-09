@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import './generalUtility.dart';
+import 'forgotPassword.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -59,6 +60,24 @@ class _LoginState extends State<Login> {
                 ),
                 SizedBox(
                   height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ForgotPassword()));
+                        },
+                        child: Text(
+                          "Forgot Password",
+                          style: TextStyle(
+                            color: Colors.blue,
+                          ),
+                        ))
+                  ],
                 ),
                 RaisedButton(
                   onPressed: login,

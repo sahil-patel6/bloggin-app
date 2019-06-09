@@ -1,6 +1,6 @@
 module.exports = function(app, db) {
   var nodemailer = require("nodemailer");
-  var config = require('../config');
+  var config = require("../config");
   var transporter = nodemailer.createTransport({
     service: "gmail",
     requireTLS: true,
@@ -34,6 +34,10 @@ module.exports = function(app, db) {
     transporter.sendMail(mailOptions, function(error, info) {
       if (error) {
         console.log(error);
+        res.send(
+          "An error occured while sending email, please try again later"
+        );
+        res.end();
       } else {
         console.log("Email sent: " + info.response);
         res.send("Verfication Email Sent");

@@ -15,7 +15,7 @@ client.connect(function(err) {
   console.log("Connected successfully to server");
 
   db = client.db(dbName);
-  db.collection("users").deleteMany({});
+  // db.collection("users").deleteMany({});
   var result = db
     .collection("users")
     .find({})
@@ -31,6 +31,7 @@ client.connect(function(err) {
   var login = require("./Routes/login")(app, db);
   var verify = require("./Routes/verify")(app, db);
   var verficationEmail = require("./Routes/sendVerificationEmail")(app, db);
+  var forgotPassword = require("./Routes/forgotPassword")(app, db);
 });
 
 var port = process.env.port || 3000;

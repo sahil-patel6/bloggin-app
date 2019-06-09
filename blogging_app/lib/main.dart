@@ -129,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         borderRadius: BorderRadius.circular(33 / 2),
                         child: CachedNetworkImage(
                           imageUrl:
-                              "http://192.168.1.101:3000/profile_pics/$userID.jpg",
+                              "http://192.168.1.102:3000/profile_pics/$userID.jpg",
                           placeholder: (context, url) =>
                               Icon(Icons.account_circle, size: 33),
                           errorWidget: (context, url, error) =>
