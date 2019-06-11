@@ -37,8 +37,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Text(
-                        "Enter your email here :",
+                        "Enter your email that is registered with us :",
                         style: TextStyle(fontSize: 20),
+                        textAlign: TextAlign.center,
                       ),
                       SizedBox(
                         height: 20,
@@ -47,7 +48,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         controller: _emailController,
                         decoration: InputDecoration(
                           icon: Icon(Icons.keyboard),
-                          hintText: "Email",
+                          labelText: "Email",
                         ),
                       ),
                       SizedBox(
@@ -65,17 +66,25 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                       Text(
                         "Enter your otp here that is sent to ${_emailController.text} :",
                         style: TextStyle(fontSize: 20),
+                        textAlign: TextAlign.center,
                       ),
                       SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
                       TextFormField(
                         controller: _otpController,
                         decoration: InputDecoration(
                           icon: Icon(Icons.keyboard),
-                          hintText: "OTP",
+                          labelText: "OTP",
                         ),
                         maxLength: 6,
+                      ),
+                      TextFormField(
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                          icon: Icon(Icons.keyboard),
+                          labelText: "New Password",
+                        ),
                       ),
                       SizedBox(
                         height: 20,
@@ -92,15 +101,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                           )
                         ],
                       ),
-                      TextFormField(
-                        controller: _passwordController,
-                        decoration: InputDecoration(
-                          icon: Icon(Icons.keyboard),
-                          hintText: "New Password",
-                        ),
-                      ),
                       SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
                       RaisedButton(
                         onPressed: changePassword,

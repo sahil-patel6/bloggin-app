@@ -16,6 +16,7 @@ class _LoginState extends State<Login> {
   TextEditingController _passwordController =
       new TextEditingController(text: "");
   GlobalKey<ScaffoldState> key = new GlobalKey();
+  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,66 +28,63 @@ class _LoginState extends State<Login> {
         child: ListView(shrinkWrap: true, children: <Widget>[
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(175 / 2),
-                  child: Icon(
-                    Icons.account_circle,
-                    size: 175,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(175 / 2),
+                    child: Icon(
+                      Icons.account_circle,
+                      size: 175,
+                    ),
                   ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    icon: Icon(Icons.email),
-                    hintText: "Email",
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      icon: Icon(Icons.email),
+                      labelText: "Email",
+                    ),
                   ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    icon: Icon(Icons.keyboard),
-                    hintText: "Password",
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      icon: Icon(Icons.keyboard),
+                      labelText: "Password",
+                    ),
                   ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ForgotPassword()));
-                        },
-                        child: Text(
-                          "Forgot Password",
-                          style: TextStyle(
-                            color: Colors.blue,
-                          ),
-                        ))
-                  ],
-                ),
-                RaisedButton(
-                  onPressed: login,
-                  child: Text("Login"),
-                ),
-                SizedBox(
-                  height: 60,
-                )
-              ],
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ForgotPassword()));
+                          },
+                          child: Text(
+                            "Forgot Password",
+                            style: TextStyle(
+                              color: Colors.blue,
+                            ),
+                          ))
+                    ],
+                  ),
+                  RaisedButton(
+                    onPressed: login,
+                    child: Text("Login"),
+                  ),
+                  SizedBox(
+                    height: 60,
+                  )
+                ],
+              ),
             ),
           ),
         ]),
@@ -94,32 +92,8 @@ class _LoginState extends State<Login> {
     );
   }
 
-  bool validate() {
-    String email = _emailController.text;
-    String password = _passwordController.text;
-    if (email.isEmpty ||
-        !email.contains(new RegExp(
-            r'^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$'))) {
-      Scaffold.of(key.currentContext).hideCurrentSnackBar();
-      Scaffold.of(key.currentContext).showSnackBar(SnackBar(
-        content: Text("Please Enter a valid email address"),
-        backgroundColor: Colors.red,
-      ));
-      return false;
-    }
-    if (password.isEmpty || password.length < 8) {
-      Scaffold.of(key.currentContext).hideCurrentSnackBar();
-      Scaffold.of(key.currentContext).showSnackBar(SnackBar(
-        content: Text("Password Length should be more then 8 characters"),
-        backgroundColor: Colors.red,
-      ));
-      return false;
-    }
-    return true;
-  }
-
   void login() {
-    if (!validate()) return;
+    if (!_formKey.currentState.validate()) return;
     Scaffold.of(key.currentContext).hideCurrentSnackBar();
     print(_emailController.text);
     print(_passwordController.text);

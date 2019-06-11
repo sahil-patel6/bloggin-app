@@ -59,11 +59,15 @@ class _VerifyEmailState extends State<VerifyEmail> {
                     Container(
                       width: 100,
                       child: TextFormField(
+                        autovalidate: true,
                         controller: _otpController,
                         maxLength: 6,
                         decoration: InputDecoration(
-                          hintText: "Enter otp here",
+                          labelText: "Enter otp here",
                         ),
+                        validator: (otp){
+                          return 'otp length should be 6';
+                        },
                       ),
                     ),
                     SizedBox(

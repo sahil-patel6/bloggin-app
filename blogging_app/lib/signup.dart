@@ -22,6 +22,7 @@ class _SignUpState extends State<SignUp> {
       new TextEditingController(text: "");
   File profilePic;
   GlobalKey<ScaffoldState> key = new GlobalKey();
+  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,64 +34,81 @@ class _SignUpState extends State<SignUp> {
         child: ListView(shrinkWrap: true, children: <Widget>[
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                InkWell(
-                    onTap: selectImage,
-                    child: profilePic == null
-                        ? Icon(Icons.add_a_photo, size: 175, color: Colors.grey)
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(175 / 2),
-                            child: Image.file(
-                              profilePic,
-                              width: 175,
-                              height: 175,
-                              fit: BoxFit.cover,
-                            ),
-                          )),
-                SizedBox(
-                  height: 20,
-                ),
-                TextFormField(
-                  controller: _userNameController,
-                  decoration: InputDecoration(
-                    icon: Icon(Icons.account_circle),
-                    hintText: "User Name",
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  InkWell(
+                      onTap: selectImage,
+                      child: profilePic == null
+                          ? Icon(Icons.add_a_photo,
+                              size: 175, color: Colors.grey)
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(175 / 2),
+                              child: Image.file(
+                                profilePic,
+                                width: 175,
+                                height: 175,
+                                fit: BoxFit.cover,
+                              ),
+                            )),
+                  SizedBox(
+                    height: 20,
                   ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    icon: Icon(Icons.email),
-                    hintText: "Email",
+                  TextFormField(
+                    textCapitalization: TextCapitalization.words,
+                    controller: _userNameController,
+                    decoration: InputDecoration(
+                  
+                      icon: Icon(Icons.account_circle),
+                      labelText: "User Name",
+                    ),
+                    validator: (name) {
+                      if (name.isEmpty) {
+                        return "please don't leave user name field blank";
+                      }
+                    },
                   ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    icon: Icon(Icons.keyboard),
-                    hintText: "Password",
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      icon: Icon(Icons.email),
+                      labelText: "Email",
+                    ),
+                    validator: (email) {
+                      if (email.isEmpty ||
+                          !email.contains(new RegExp(
+                              r'^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$'))) {
+                        return 'please enter valid email address';
+                      }
+                    },
                   ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                RaisedButton(
-                  onPressed: signUp,
-                  child: Text("Sign up"),
-                ),
-                SizedBox(
-                  height: 60,
-                )
-              ],
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      icon: Icon(Icons.keyboard),
+                      labelText: "Password",
+                    ),
+                    validator: (password) {
+                      if (password.length <= 6) {
+                        return 'password length should be more than 6 characters';
+                      }
+                    },
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  RaisedButton(
+                    onPressed: signUp,
+                    child: Text("Sign up"),
+                  ),
+                  SizedBox(
+                    height: 60,
+                  )
+                ],
+              ),
             ),
           ),
         ]),
@@ -98,19 +116,7 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
-  bool validate() {
-    String name = _userNameController.text;
-    String email = _emailController.text;
-    String password = _passwordController.text;
-    print(name.length);
-    if (name.length <= 0) {
-      Scaffold.of(key.currentContext).hideCurrentSnackBar();
-      Scaffold.of(key.currentContext).showSnackBar(SnackBar(
-        content: Text("Don't leave user name field blank"),
-        backgroundColor: Colors.red,
-      ));
-      return false;
-    }
+  bool validateIfProfilePicIsEmpty() {
     if (profilePic == null) {
       Scaffold.of(key.currentContext).hideCurrentSnackBar();
       Scaffold.of(key.currentContext).showSnackBar(SnackBar(
@@ -119,29 +125,11 @@ class _SignUpState extends State<SignUp> {
       ));
       return false;
     }
-    if (email.isEmpty ||
-        !email.contains(new RegExp(
-            r'^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$'))) {
-      Scaffold.of(key.currentContext).hideCurrentSnackBar();
-      Scaffold.of(key.currentContext).showSnackBar(SnackBar(
-        content: Text("Please Enter a valid email address"),
-        backgroundColor: Colors.red,
-      ));
-      return false;
-    }
-    if (password.isEmpty || password.length < 8) {
-      Scaffold.of(key.currentContext).hideCurrentSnackBar();
-      Scaffold.of(key.currentContext).showSnackBar(SnackBar(
-        content: Text("Password Length should be more then 8 characters"),
-        backgroundColor: Colors.red,
-      ));
-      return false;
-    }
     return true;
   }
 
   void signUp() {
-    if (!validate()) return;
+    if (!validateIfProfilePicIsEmpty() || !_formKey.currentState.validate()) return;
     Scaffold.of(key.currentContext).hideCurrentSnackBar();
     print(_emailController.text);
     print(_passwordController.text);
