@@ -7,7 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import './BookmarkedPosts.dart';
 import './Home.dart';
 import './AddPost.dart';
-import './LikedPosts.dart';
+import './MyAccount.dart';
 import './YourPosts.dart';
 import 'VerifyEmail.dart';
 
@@ -32,6 +32,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Future<Database> database;
+  String appBarTitle = "Home";
   bool userExists = false, isVerified = false;
   String name, email, userID;
   int _currentIndex = 0;
@@ -50,10 +51,27 @@ class _MyHomePageState extends State<MyHomePage> {
         onTap: (i) {
           setState(() {
             if (userExists && isVerified) _currentIndex = i;
+            switch (_currentIndex) {
+              case 0:
+                appBarTitle = "Home";
+                break;
+              case 1:
+                appBarTitle = "Bookmarked Posts";
+                break;
+              case 2:
+                appBarTitle = "Add Post";
+                break;
+              case 3:
+                appBarTitle = "Your Posts";
+                break;
+              case 4:
+                appBarTitle = "My Account";
+                break;
+            }
           });
         },
         currentIndex: _currentIndex,
-        type: BottomNavigationBarType.fixed,
+        type: BottomNavigationBarType.shifting,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), title: Text("Home")),
           BottomNavigationBarItem(
@@ -61,13 +79,13 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
               icon: Icon(Icons.add), title: Text("Add Post")),
           BottomNavigationBarItem(
-              icon: Icon(Icons.thumb_up), title: Text("Liked Posts")),
-          BottomNavigationBarItem(
               icon: Icon(Icons.library_books), title: Text("Your Posts")),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.account_circle), title: Text("My Account")),
         ],
       ),
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text(appBarTitle),
         actions: <Widget>[
           Center(
             child: InkWell(
@@ -163,9 +181,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 : _currentIndex == 2
                     ? AddPost(name, email, userID)
                     : _currentIndex == 3
-                        ? LikedPost(name, email, userID)
+                        ? YourPosts(name, email, userID)
                         : _currentIndex == 4
-                            ? YourPosts(name, email, userID)
+                            ? MyAccount(name, email, userID)
                             : null;
       } else {
         return Center(
