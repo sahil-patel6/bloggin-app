@@ -38,62 +38,56 @@ class _VerifyEmailState extends State<VerifyEmail> {
       appBar: AppBar(
         title: Text("Verify Your Email"),
       ),
-      body: Center(
-        key: key,
-        child: ListView(
-          shrinkWrap: true,
-          children: <Widget>[
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: <Widget>[
-                    Text(
-                      "Please Enter OTP that is sent to your email: " +
-                          widget.email,
-                      style: TextStyle(fontSize: 18, color: Colors.blue),
+      body: ListView(shrinkWrap: true, children: <Widget>[
+        Center(
+          key: key,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(
+                    "Please Enter OTP that is sent to your email: " +
+                        widget.email,
+                    style: TextStyle(fontSize: 18, color: Colors.blue),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                    controller: _otpController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      icon: Icon(Icons.keyboard),
+                      labelText: "OTP",
                     ),
-                    SizedBox(
-                      height: 20,
+                    maxLength: 6,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  InkWell(
+                    onTap: sendVerificationEmail,
+                    child: Text(
+                      "resend otp",
+                      style: TextStyle(color: Colors.blue, fontSize: 17),
                     ),
-                    Container(
-                      width: 100,
-                      child: TextFormField(
-                        autovalidate: true,
-                        controller: _otpController,
-                        maxLength: 6,
-                        decoration: InputDecoration(
-                          labelText: "Enter otp here",
-                        ),
-                        validator: (otp){
-                          return 'otp length should be 6';
-                        },
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    InkWell(
-                      onTap: sendVerificationEmail,
-                      child: Text(
-                        "resend otp",
-                        style: TextStyle(color: Colors.blue, fontSize: 17),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    RaisedButton(
-                      onPressed: verify,
-                      child: Text("Verify"),
-                    )
-                  ],
-                ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  RaisedButton(
+                    onPressed: verify,
+                    child: Text("Verify"),
+                  )
+                ],
               ),
-            )
-          ],
+            ),
+          ),
         ),
-      ),
+      ]),
     );
   }
 
@@ -136,8 +130,8 @@ class _VerifyEmailState extends State<VerifyEmail> {
     int result = await db.update("user", {"isVerified": "YES"},
         where: "email=?", whereArgs: [widget.email]);
     print(result);
-    if(result == 1){
-      Navigator.pop(key.currentContext,true);
+    if (result == 1) {
+      Navigator.pop(key.currentContext, true);
     }
   }
 }

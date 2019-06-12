@@ -89,6 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: <Widget>[
           Center(
             child: InkWell(
+              customBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(33)),
                 onTap: () {
                   if (!userExists) {
                     showDialog(
@@ -142,24 +143,27 @@ class _MyHomePageState extends State<MyHomePage> {
                         ));
                   }
                 },
-                child: userExists
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(33 / 2),
-                        child: CachedNetworkImage(
-                          imageUrl:
-                              "http://192.168.1.102:3000/profile_pics/$userID.jpg",
-                          placeholder: (context, url) =>
-                              Icon(Icons.account_circle, size: 33),
-                          errorWidget: (context, url, error) =>
-                              Icon(Icons.account_circle, size: 33),
-                          fit: BoxFit.cover,
-                          width: 33,
-                          height: 33,
-                        ))
-                    : Icon(
-                        Icons.account_circle,
-                        size: 33,
-                      )),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: userExists
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(33 / 2),
+                          child: CachedNetworkImage(
+                            imageUrl:
+                                "http://192.168.1.101:3000/profile_pics/$userID.jpg",
+                            placeholder: (context, url) =>
+                                Icon(Icons.account_circle, size: 33),
+                            errorWidget: (context, url, error) =>
+                                Icon(Icons.account_circle, size: 33),
+                            fit: BoxFit.cover,
+                            width: 33,
+                            height: 33,
+                          ))
+                      : Icon(
+                          Icons.account_circle,
+                          size: 33,
+                        ),
+                )),
           ),
           SizedBox(width: 20),
         ],

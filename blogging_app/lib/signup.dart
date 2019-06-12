@@ -23,6 +23,7 @@ class _SignUpState extends State<SignUp> {
   File profilePic;
   GlobalKey<ScaffoldState> key = new GlobalKey();
   final _formKey = GlobalKey<FormState>();
+  bool showPassword = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,13 +56,13 @@ class _SignUpState extends State<SignUp> {
                               ),
                             )),
                   SizedBox(
-                    height: 20,
+                    height: 40,
                   ),
                   TextFormField(
                     textCapitalization: TextCapitalization.words,
                     controller: _userNameController,
                     decoration: InputDecoration(
-                  
+                      border: OutlineInputBorder(),
                       icon: Icon(Icons.account_circle),
                       labelText: "User Name",
                     ),
@@ -71,9 +72,13 @@ class _SignUpState extends State<SignUp> {
                       }
                     },
                   ),
+                  SizedBox(
+                    height: 20,
+                  ),
                   TextFormField(
                     controller: _emailController,
                     decoration: InputDecoration(
+                      border: OutlineInputBorder(),
                       icon: Icon(Icons.email),
                       labelText: "Email",
                     ),
@@ -85,12 +90,26 @@ class _SignUpState extends State<SignUp> {
                       }
                     },
                   ),
+                  SizedBox(
+                    height: 20,
+                  ),
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
+                      border: OutlineInputBorder(),
                       icon: Icon(Icons.keyboard),
                       labelText: "Password",
+                      suffixIcon: InkWell(
+                          customBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(33)),
+                          onTap: () {
+                            setState(() {
+                              showPassword = !showPassword;
+                            });
+                          },
+                          child: Icon(Icons.remove_red_eye)),
                     ),
+                    obscureText: !showPassword,
                     validator: (password) {
                       if (password.length <= 6) {
                         return 'password length should be more than 6 characters';
@@ -98,11 +117,21 @@ class _SignUpState extends State<SignUp> {
                     },
                   ),
                   SizedBox(
-                    height: 20,
+                    height: 50,
                   ),
                   RaisedButton(
+                    color: Colors.blue,
+                    elevation: 10,
+                    highlightElevation: 20,
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 75),
                     onPressed: signUp,
-                    child: Text("Sign up"),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    child: Text("Sign up",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 20,
+                        )),
                   ),
                   SizedBox(
                     height: 60,
@@ -116,7 +145,7 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
-  bool validateIfProfilePicIsEmpty() {
+  bool validateIfProfilePicIsNotEmpty() {
     if (profilePic == null) {
       Scaffold.of(key.currentContext).hideCurrentSnackBar();
       Scaffold.of(key.currentContext).showSnackBar(SnackBar(
@@ -129,37 +158,38 @@ class _SignUpState extends State<SignUp> {
   }
 
   void signUp() {
-    if (!validateIfProfilePicIsEmpty() || !_formKey.currentState.validate()) return;
-    Scaffold.of(key.currentContext).hideCurrentSnackBar();
-    print(_emailController.text);
-    print(_passwordController.text);
-    Scaffold.of(key.currentContext).showSnackBar(SnackBar(
-        content: Text("Registering!!!"),
-        duration: Duration(
-          minutes: 1,
-        )));
-    String base64Image = base64Encode(profilePic.readAsBytesSync());
-    http.post("$baseURL/signup", body: {
-      "profilePic": base64Image,
-      "userName": _userNameController.text,
-      "email": _emailController.text,
-      "password": _passwordController.text,
-    }).then((res) {
-      Map<String, dynamic> json = jsonDecode(res.body);
+    if (validateIfProfilePicIsNotEmpty() && _formKey.currentState.validate()) {
       Scaffold.of(key.currentContext).hideCurrentSnackBar();
+      print(_emailController.text);
+      print(_passwordController.text);
       Scaffold.of(key.currentContext).showSnackBar(SnackBar(
-        content: Text(json['message']),
-      ));
-      if (json['userID'] != null) {
-        print(json['userID']);
-        addUserToDatabase(json['userID']);
-      }
-    }).catchError((err) {
-      print(err);
-      Scaffold.of(key.currentContext).showSnackBar(SnackBar(
-        content: Text("An error occured, please try again later"),
-      ));
-    });
+          content: Text("Registering!!!"),
+          duration: Duration(
+            minutes: 1,
+          )));
+      String base64Image = base64Encode(profilePic.readAsBytesSync());
+      http.post("$baseURL/signup", body: {
+        "profilePic": base64Image,
+        "userName": _userNameController.text,
+        "email": _emailController.text,
+        "password": _passwordController.text,
+      }).then((res) {
+        Map<String, dynamic> json = jsonDecode(res.body);
+        Scaffold.of(key.currentContext).hideCurrentSnackBar();
+        Scaffold.of(key.currentContext).showSnackBar(SnackBar(
+          content: Text(json['message']),
+        ));
+        if (json['userID'] != null) {
+          print(json['userID']);
+          addUserToDatabase(json['userID']);
+        }
+      }).catchError((err) {
+        print(err);
+        Scaffold.of(key.currentContext).showSnackBar(SnackBar(
+          content: Text("An error occured, please try again later"),
+        ));
+      });
+    }
   }
 
   void addUserToDatabase(String userID) async {

@@ -17,6 +17,7 @@ class _LoginState extends State<Login> {
       new TextEditingController(text: "");
   GlobalKey<ScaffoldState> key = new GlobalKey();
   final _formKey = GlobalKey<FormState>();
+  bool showPassword = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,44 +42,91 @@ class _LoginState extends State<Login> {
                       size: 175,
                     ),
                   ),
+                  SizedBox(
+                    height: 20,
+                  ),
                   TextFormField(
                     controller: _emailController,
                     decoration: InputDecoration(
+                      border: OutlineInputBorder(),
                       icon: Icon(Icons.email),
                       labelText: "Email",
                     ),
+                    validator: (email) {
+                      if (email.isEmpty ||
+                          !email.contains(new RegExp(
+                              r'^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$'))) {
+                        return 'please enter valid email address';
+                      }
+                    },
+                  ),
+                  SizedBox(
+                    height: 20,
                   ),
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
+                      border: OutlineInputBorder(),
                       icon: Icon(Icons.keyboard),
                       labelText: "Password",
+                      suffixIcon: InkWell(
+                          customBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(33)),
+                          onTap: () {
+                            setState(() {
+                              showPassword = !showPassword;
+                            });
+                          },
+                          child: Icon(Icons.remove_red_eye)),
                     ),
+                    obscureText: !showPassword,
+                    validator: (pass) {
+                      if (pass.length <= 6) {
+                        return 'length should be more than 6 characters';
+                      }
+                    },
                   ),
                   SizedBox(
-                    height: 20,
+                    height: 15,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
                       InkWell(
+                          customBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20)),
                           onTap: () {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => ForgotPassword()));
                           },
-                          child: Text(
-                            "Forgot Password",
-                            style: TextStyle(
-                              color: Colors.blue,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "Forgot Password",
+                              style:
+                                  TextStyle(color: Colors.blue, fontSize: 15),
                             ),
                           ))
                     ],
                   ),
+                  SizedBox(
+                    height: 15,
+                  ),
                   RaisedButton(
+                    color: Colors.blue,
+                    elevation: 10,
+                    highlightElevation: 20,
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 75),
                     onPressed: login,
-                    child: Text("Login"),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    child: Text("Log In",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 20,
+                        )),
                   ),
                   SizedBox(
                     height: 60,
@@ -93,35 +141,36 @@ class _LoginState extends State<Login> {
   }
 
   void login() {
-    if (!_formKey.currentState.validate()) return;
-    Scaffold.of(key.currentContext).hideCurrentSnackBar();
-    print(_emailController.text);
-    print(_passwordController.text);
-    Scaffold.of(key.currentContext).showSnackBar(SnackBar(
-        content: Text("Logging in!!!"),
-        duration: Duration(
-          minutes: 1,
-        )));
-    http.post("$baseURL/login", body: {
-      "email": _emailController.text,
-      "password": _passwordController.text,
-    }).then((res) {
-      Map<String, dynamic> json = jsonDecode(res.body);
-      print(json);
+    if (_formKey.currentState.validate()) {
       Scaffold.of(key.currentContext).hideCurrentSnackBar();
+      print(_emailController.text);
+      print(_passwordController.text);
       Scaffold.of(key.currentContext).showSnackBar(SnackBar(
-        content: Text(json['message']),
-      ));
-      if (json['userID'] != null) {
-        print(json['userID']);
-        addUserToDatabase(json['userID'], json['name'], json['isVerified']);
-      }
-    }).catchError((err) {
-      print(err);
-      Scaffold.of(key.currentContext).showSnackBar(SnackBar(
-        content: Text("An error occured, please try again later"),
-      ));
-    });
+          content: Text("Logging in!!!"),
+          duration: Duration(
+            minutes: 1,
+          )));
+      http.post("$baseURL/login", body: {
+        "email": _emailController.text,
+        "password": _passwordController.text,
+      }).then((res) {
+        Map<String, dynamic> json = jsonDecode(res.body);
+        print(json);
+        Scaffold.of(key.currentContext).hideCurrentSnackBar();
+        Scaffold.of(key.currentContext).showSnackBar(SnackBar(
+          content: Text(json['message']),
+        ));
+        if (json['userID'] != null) {
+          print(json['userID']);
+          addUserToDatabase(json['userID'], json['name'], json['isVerified']);
+        }
+      }).catchError((err) {
+        print(err);
+        Scaffold.of(key.currentContext).showSnackBar(SnackBar(
+          content: Text("An error occured, please try again later"),
+        ));
+      });
+    }
   }
 
   void addUserToDatabase(String userID, String name, String isVerified) async {
