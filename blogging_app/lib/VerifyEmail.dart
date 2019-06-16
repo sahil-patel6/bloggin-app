@@ -32,62 +32,89 @@ class _VerifyEmailState extends State<VerifyEmail> {
 
   TextEditingController _otpController = new TextEditingController(text: "");
   GlobalKey<ScaffoldState> key = new GlobalKey();
+  GlobalKey<FormState> _formKey = new GlobalKey();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Verify Your Email"),
       ),
-      body: ListView(shrinkWrap: true, children: <Widget>[
-        Center(
-          key: key,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text(
-                    "Please Enter OTP that is sent to your email: " +
-                        widget.email,
-                    style: TextStyle(fontSize: 18, color: Colors.blue),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  TextFormField(
-                    controller: _otpController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      icon: Icon(Icons.keyboard),
-                      labelText: "OTP",
+      body: Center(
+        child: ListView(shrinkWrap: true, children: <Widget>[
+          Center(
+            key: key,
+            child: Center(
+              child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text(
+                          "Please Enter OTP that is sent to your email: " +
+                              widget.email,
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        TextFormField(
+                          controller: _otpController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            icon: Icon(Icons.keyboard),
+                            labelText: "OTP",
+                          ),
+                          keyboardType: TextInputType.number,
+                          maxLength: 6,
+                          validator: (otp) {
+                            if (otp.length != 6) {
+                              return 'otp length should be exactly of size 6';
+                            }
+                          },
+                        ),
+                        InkWell(
+                          customBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          onTap: sendVerificationEmail,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "resend otp",
+                              style:
+                                  TextStyle(color: Colors.blue, fontSize: 20),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        RaisedButton(
+                          color: Colors.blue,
+                          elevation: 10,
+                          highlightElevation: 20,
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 75),
+                          onPressed: verify,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Text("Verify",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 20,
+                              )),
+                        ),
+                      ],
                     ),
-                    maxLength: 6,
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  InkWell(
-                    onTap: sendVerificationEmail,
-                    child: Text(
-                      "resend otp",
-                      style: TextStyle(color: Colors.blue, fontSize: 17),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  RaisedButton(
-                    onPressed: verify,
-                    child: Text("Verify"),
-                  )
-                ],
-              ),
+                  )),
             ),
           ),
-        ),
-      ]),
+        ]),
+      ),
     );
   }
 
@@ -96,7 +123,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
       content: Text("Verifying"),
     ));
     String otp = _otpController.text;
-    if (otp.length == 6) {
+    if (_formKey.currentState.validate()) {
       http.post("$baseURL/verify", body: {
         "email": widget.email,
         "code": otp,

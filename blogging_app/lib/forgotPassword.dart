@@ -63,6 +63,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 return 'please enter valid email address';
                               }
                             },
+                            keyboardType: TextInputType.emailAddress,
                           ),
                           SizedBox(
                             height: 40,
@@ -105,6 +106,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                               labelText: "OTP",
                             ),
                             maxLength: 6,
+                            keyboardType: TextInputType.number,
                             validator: (otp) {
                               if (otp.length != 6) {
                                 return 'It should be exactly 6 characters';

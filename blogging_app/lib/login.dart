@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -59,6 +60,7 @@ class _LoginState extends State<Login> {
                         return 'please enter valid email address';
                       }
                     },
+                    keyboardType: TextInputType.emailAddress,
                   ),
                   SizedBox(
                     height: 20,
@@ -162,7 +164,8 @@ class _LoginState extends State<Login> {
         ));
         if (json['userID'] != null) {
           print(json['userID']);
-          addUserToDatabase(json['userID'], json['name'], json['isVerified']);
+          addUserToDatabase(json['userID'], json['name'], json['isVerified'],
+              json['profilePic']);
         }
       }).catchError((err) {
         print(err);
@@ -173,12 +176,13 @@ class _LoginState extends State<Login> {
     }
   }
 
-  void addUserToDatabase(String userID, String name, String isVerified) async {
+  void addUserToDatabase(
+      String userID, String name, String isVerified, String profilePic) async {
     final Future<Database> database = openDatabase(
       join(await getDatabasesPath(), 'user.db'),
       onCreate: (db, version) {
         return db.execute(
-          "CREATE TABLE user(userID TEXT, name TEXT, email TEXT,isVerified TEXT)",
+          DbCommandToCreateUserTable,
         );
       },
       version: 1,
@@ -192,7 +196,8 @@ class _LoginState extends State<Login> {
           'userID': userID,
           'name': name,
           'email': _emailController.text,
-          'isVerified': isVerified
+          'isVerified': isVerified,
+          'profilePic': profilePic,
         },
         conflictAlgorithm: ConflictAlgorithm.replace);
     print(result);

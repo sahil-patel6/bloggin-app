@@ -8,7 +8,6 @@ module.exports = function(app, db) {
     var img = req.body.profilePic;
     var email = req.body.email;
     var password = req.body.password;
-    var realFile = Buffer.from(img, "base64");
     bcrypt.hash(password, 10, (err, encryptedPassword) => {
       db.collection("users")
         .find({ email: email })
@@ -19,6 +18,7 @@ module.exports = function(app, db) {
               .insertOne({
                 userName: name,
                 email: email,
+                profilePic: img,
                 password: encryptedPassword,
                 totalNumberOfPosts: 0,
                 listOfBookmarkedPosts: [],
@@ -28,19 +28,6 @@ module.exports = function(app, db) {
                 verificationCode: ""
               })
               .then(value => {
-                fs.writeFile(
-                  "./public/profile_pics/" + value.insertedId + ".jpg",
-                  realFile,
-                  function(err) {
-                    if (err) {
-                      console.log(err);
-                      res.send({
-                        message:
-                          "An error occured while adding your profile picture"
-                      });
-                    }
-                  }
-                );
                 res.send({
                   message: "Account Created Successfully",
                   userID: value.insertedId

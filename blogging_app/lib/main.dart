@@ -1,15 +1,18 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import './signup.dart';
 import './login.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import './BookmarkedPosts.dart';
 import './Home.dart';
 import './AddPost.dart';
 import './MyAccount.dart';
 import './YourPosts.dart';
 import 'VerifyEmail.dart';
+import './generalUtility.dart';
 
 void main() => runApp(MyApp());
 
@@ -36,6 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool userExists = false, isVerified = false;
   String name, email, userID;
   int _currentIndex = 0;
+  Uint8List profilePic;
   @override
   void initState() {
     super.initState();
@@ -89,56 +93,68 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: <Widget>[
           Center(
             child: InkWell(
-              customBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(33)),
+                customBorder:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(33)),
                 onTap: () {
                   if (!userExists) {
                     showDialog(
                         context: context,
                         child: Dialog(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              ListTile(
-                                onTap: () async {
-                                  Navigator.pop(context);
-                                  await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => SignUp()));
-                                  checkUserIsLoggedInOrNot();
-                                },
-                                title: Text("Signup"),
-                              ),
-                              ListTile(
-                                onTap: () async {
-                                  Navigator.pop(context);
-                                  await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => Login()));
-                                  checkUserIsLoggedInOrNot();
-                                  print("Login");
-                                },
-                                title: Text("Login"),
-                              ),
-                            ],
+                          elevation: 20,
+                          shape: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                ListTile(
+                                  onTap: () async {
+                                    Navigator.pop(context);
+                                    await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => SignUp()));
+                                    checkUserIsLoggedInOrNot();
+                                  },
+                                  title: Text("Signup"),
+                                ),
+                                ListTile(
+                                  onTap: () async {
+                                    Navigator.pop(context);
+                                    await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => Login()));
+                                    checkUserIsLoggedInOrNot();
+                                    print("Login");
+                                  },
+                                  title: Text("Login"),
+                                ),
+                              ],
+                            ),
                           ),
                         ));
                   } else {
                     showDialog(
                         context: context,
                         child: Dialog(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              ListTile(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  signout();
-                                },
-                                title: Text("Sign out"),
-                              ),
-                            ],
+                          shape: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                ListTile(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    signout();
+                                  },
+                                  title: Text("Sign out"),
+                                ),
+                              ],
+                            ),
                           ),
                         ));
                   }
@@ -147,18 +163,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding: const EdgeInsets.all(8.0),
                   child: userExists
                       ? ClipRRect(
-                          borderRadius: BorderRadius.circular(33 / 2),
-                          child: CachedNetworkImage(
-                            imageUrl:
-                                "http://192.168.1.101:3000/profile_pics/$userID.jpg",
-                            placeholder: (context, url) =>
-                                Icon(Icons.account_circle, size: 33),
-                            errorWidget: (context, url, error) =>
-                                Icon(Icons.account_circle, size: 33),
-                            fit: BoxFit.cover,
-                            width: 33,
-                            height: 33,
-                          ))
+                          borderRadius: BorderRadius.circular(33),
+                          child: profilePic == null
+                              ? Icon(Icons.account_circle, size: 33)
+                              : Image.memory(profilePic, height: 33, width: 33))
                       : Icon(
                           Icons.account_circle,
                           size: 33,
@@ -192,12 +200,21 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         return Center(
             child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Text("You have not verified your email yet, please verify. "),
+            Text(
+              "You have not verified your email yet, please verify.",
+              style: TextStyle(fontSize: 20),
+              textAlign: TextAlign.center,
+            ),
             SizedBox(
-              height: 10,
+              height: 30,
             ),
             RaisedButton(
+              color: Colors.blue,
+              elevation: 10,
+              highlightElevation: 20,
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 75),
               onPressed: () async {
                 await Navigator.push(
                     key.currentContext,
@@ -207,13 +224,23 @@ class _MyHomePageState extends State<MyHomePage> {
                             )));
                 checkUserIsLoggedInOrNot();
               },
-              child: Text("Verify"),
-            )
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              child: Text("Verify",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                  )),
+            ),
           ],
         ));
       }
     } else {
-      return Center(child: Text("Please sign in/sign up"));
+      return Center(
+          child: Text(
+        "Please Sign in/Sign up",
+        style: TextStyle(fontSize: 20),
+      ));
     }
   }
 
@@ -222,7 +249,7 @@ class _MyHomePageState extends State<MyHomePage> {
       join(await getDatabasesPath(), 'user.db'),
       onCreate: (db, version) {
         return db.execute(
-          "CREATE TABLE user(userID TEXT, name TEXT, email TEXT)",
+          DbCommandToCreateUserTable,
         );
       },
       version: 1,
@@ -254,7 +281,7 @@ class _MyHomePageState extends State<MyHomePage> {
       join(await getDatabasesPath(), 'user.db'),
       onCreate: (db, version) {
         return db.execute(
-          "CREATE TABLE user(userID TEXT, name TEXT, email TEXT,isVerified TEXT)",
+          DbCommandToCreateUserTable,
         );
       },
       version: 1,
@@ -263,11 +290,11 @@ class _MyHomePageState extends State<MyHomePage> {
     final List<Map<String, dynamic>> maps = await db.query('user');
     List<User> user = List.generate(maps.length, (i) {
       return User(
-        userID: maps[i]['userID'],
-        name: maps[i]['name'],
-        email: maps[i]['email'],
-        isVerified: maps[i]['isVerified'],
-      );
+          userID: maps[i]['userID'],
+          name: maps[i]['name'],
+          email: maps[i]['email'],
+          isVerified: maps[i]['isVerified'],
+          profilePic: maps[i]['profilePic']);
     });
     if (user.isEmpty) {
       setState(() {
@@ -279,6 +306,7 @@ class _MyHomePageState extends State<MyHomePage> {
         name = user[0].name;
         email = user[0].email;
         userID = user[0].userID;
+        profilePic = base64Decode(user[0].profilePic);
       });
       if (user[0].isVerified == "YES") {
         setState(() {
@@ -298,5 +326,6 @@ class User {
   String name;
   String email;
   String isVerified;
-  User({this.userID, this.name, this.email, this.isVerified});
+  String profilePic;
+  User({this.userID, this.name, this.email, this.isVerified, this.profilePic});
 }

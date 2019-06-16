@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker_modern/image_picker_modern.dart';
@@ -24,6 +25,7 @@ class _SignUpState extends State<SignUp> {
   GlobalKey<ScaffoldState> key = new GlobalKey();
   final _formKey = GlobalKey<FormState>();
   bool showPassword = false;
+  Uint8List bytes;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,6 +91,7 @@ class _SignUpState extends State<SignUp> {
                         return 'please enter valid email address';
                       }
                     },
+                    keyboardType: TextInputType.emailAddress,
                   ),
                   SizedBox(
                     height: 20,
@@ -135,7 +138,7 @@ class _SignUpState extends State<SignUp> {
                   ),
                   SizedBox(
                     height: 60,
-                  )
+                  ),
                 ],
               ),
             ),
@@ -181,7 +184,7 @@ class _SignUpState extends State<SignUp> {
         ));
         if (json['userID'] != null) {
           print(json['userID']);
-          addUserToDatabase(json['userID']);
+          addUserToDatabase(json['userID'], base64Image);
         }
       }).catchError((err) {
         print(err);
@@ -192,13 +195,13 @@ class _SignUpState extends State<SignUp> {
     }
   }
 
-  void addUserToDatabase(String userID) async {
+  void addUserToDatabase(String userID, String base64Image) async {
     final Future<Database> database = openDatabase(
       join(await getDatabasesPath(), 'user.db'),
       onCreate: (db, version) {
         print("Creating new table");
         return db.execute(
-          "CREATE TABLE user(userID TEXT, name TEXT, email TEXT, isVerified TEXT)",
+          DbCommandToCreateUserTable,
         );
       },
       version: 1,
@@ -213,6 +216,7 @@ class _SignUpState extends State<SignUp> {
           'name': _userNameController.text,
           'email': _emailController.text,
           'isVerified': "NO",
+          'profilePic': base64Image,
         },
         conflictAlgorithm: ConflictAlgorithm.replace);
     print(result);
@@ -226,8 +230,10 @@ class _SignUpState extends State<SignUp> {
 
   void selectImage() async {
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      profilePic = image;
-    });
+    if (image != null) {
+      setState(() {
+        profilePic = image;
+      });
+    }
   }
 }

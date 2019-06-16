@@ -20,7 +20,8 @@ module.exports = function(app, db) {
                     message: "Logged in successfully",
                     userID: doc._id.toString(),
                     name: doc.userName,
-                    isVerified: doc.isVerified ? "YES" : "NO"
+                    isVerified: doc.isVerified ? "YES" : "NO",
+                    profilePic: doc.profilePic,
                   });
                   res.end();
                 } else {

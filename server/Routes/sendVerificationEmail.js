@@ -15,7 +15,7 @@ module.exports = function(app, db) {
     console.log(email);
 
     var chars =
-      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      "0123456789";
     var code = "";
     for (var i = 6; i > 0; --i) {
       code += chars[Math.round(Math.random() * (chars.length - 1))];
