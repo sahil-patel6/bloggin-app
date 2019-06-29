@@ -8,12 +8,14 @@ import './generalUtility.dart';
 
 class VerifyEmail extends StatefulWidget {
   final String email;
-  VerifyEmail({this.email});
+  final Function check;
+  VerifyEmail({this.email,this.check});
   @override
   _VerifyEmailState createState() => _VerifyEmailState();
 }
 
 class _VerifyEmailState extends State<VerifyEmail> {
+  bool wait = true;
   @override
   void initState() {
     super.initState();
@@ -22,11 +24,17 @@ class _VerifyEmailState extends State<VerifyEmail> {
 
   void sendVerificationEmail() {
     print(widget.email);
+    setState(() {
+     wait = true; 
+    });
     http.post("$baseURL/sendVerificationEmail",
         body: {"email": widget.email}).then((res) {
       Scaffold.of(key.currentContext).showSnackBar(SnackBar(
         content: Text(res.body),
       ));
+      setState(() {
+        wait = false;
+      });
     });
   }
 
@@ -108,6 +116,10 @@ class _VerifyEmailState extends State<VerifyEmail> {
                                 fontSize: 20,
                               )),
                         ),
+                        SizedBox(height: 20,),
+                        wait
+                            ? Text("Please Wait While We send You An OTP",style: TextStyle(fontSize: 18),)
+                            : Text("OTP Sent Successfully",style: TextStyle(fontSize: 18),),
                       ],
                     ),
                   )),
@@ -156,9 +168,8 @@ class _VerifyEmailState extends State<VerifyEmail> {
     final Database db = await database;
     int result = await db.update("user", {"isVerified": "YES"},
         where: "email=?", whereArgs: [widget.email]);
+    widget.check();
+    Navigator.pop(key.currentContext);
     print(result);
-    if (result == 1) {
-      Navigator.pop(key.currentContext, true);
-    }
   }
 }

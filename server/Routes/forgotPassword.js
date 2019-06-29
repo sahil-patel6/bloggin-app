@@ -23,8 +23,20 @@ module.exports = function(app, db) {
                     )
                     .then(value => {
                       console.log(value);
-                      res.send("Password changed successfully");
-                      res.end();
+                      db.collection("users")
+                        .updateOne(
+                          { email: email },
+                          {
+                            $set: {
+                              verificationCode: 0
+                            }
+                          }
+                        )
+                        .then(val => {
+                          res.send("Password changed successfully");
+                          res.end();
+                        })
+                        .catch(err => console.log(err));
                     })
                     .catch(err => {
                       console.log(err);

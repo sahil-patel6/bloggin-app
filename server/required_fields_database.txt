@@ -1,19 +1,12 @@
 
-accounts: Google,Facebook,/Email/
+accounts: Google(future),Facebook(future),/Email/
 
 user: {
     id[mongoDB ID / primary key],
     name[String(optional)],
     email[String],
     password[String(encrypted)],
-    totalNumberOfPosts[int],
-    totalNumberOfDrafts[int],
-    lastLoggedIn[timestamp],
     listOfBookmarkedPosts[list of bookmarked post id's],
-    lastPostPosted[timestamp],
-    totalPostViewed[int],
-    totalPostLiked[int],
-    listOfLikedPosts[list of liked post id's],
     listOfPosts[list of user's created post id's],
 }
 
@@ -35,9 +28,8 @@ post:{
     authorName,
     authorEmail,
     postTitle,
-    postImage,
+    postHeaderImage,
     postDesc,
-    postContent,
+    postContent[huge list],
     totalNumberOfLikes,
-    totalNumberOfShares,
 }

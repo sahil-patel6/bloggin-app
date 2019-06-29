@@ -4,13 +4,11 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import './signup.dart';
-import './login.dart';
-import './BookmarkedPosts.dart';
+import './Search.dart';
 import './Home.dart';
 import './AddPost.dart';
 import './MyAccount.dart';
-import './YourPosts.dart';
+import './Downloads.dart';
 import 'VerifyEmail.dart';
 import './generalUtility.dart';
 
@@ -47,6 +45,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   GlobalKey<ScaffoldState> key = new GlobalKey();
+  List<String> appBarTitles = [
+    'Home',
+    'Search',
+    'Add Post',
+    'Downloads',
+    'My Account'
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -54,23 +59,12 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomNavigationBar: BottomNavigationBar(
         onTap: (i) {
           setState(() {
-            if (userExists && isVerified) _currentIndex = i;
-            switch (_currentIndex) {
-              case 0:
-                appBarTitle = "Home";
-                break;
-              case 1:
-                appBarTitle = "Bookmarked Posts";
-                break;
-              case 2:
-                appBarTitle = "Add Post";
-                break;
-              case 3:
-                appBarTitle = "Your Posts";
-                break;
-              case 4:
-                appBarTitle = "My Account";
-                break;
+            if (i == 4 || i == 0) {
+              _currentIndex = i;
+              appBarTitle = appBarTitles[i];
+            } else if (userExists && isVerified) {
+              _currentIndex = i;
+              appBarTitle = appBarTitles[i];
             }
           });
         },
@@ -79,102 +73,28 @@ class _MyHomePageState extends State<MyHomePage> {
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), title: Text("Home")),
           BottomNavigationBarItem(
-              icon: Icon(Icons.bookmark), title: Text("Bookmarked Posts")),
+              icon: Icon(Icons.search), title: Text("Search")),
           BottomNavigationBarItem(
-              icon: Icon(Icons.add), title: Text("Add Post")),
+              icon: Icon(Icons.edit), title: Text("Add Post")),
           BottomNavigationBarItem(
-              icon: Icon(Icons.library_books), title: Text("Your Posts")),
+              icon: Icon(Icons.file_download), title: Text("Downloads")),
           BottomNavigationBarItem(
-              icon: Icon(Icons.account_circle), title: Text("My Account")),
+              icon: userExists
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(30),
+                      child: profilePic == null
+                          ? Icon(Icons.account_circle, size: 30)
+                          : Image.memory(profilePic, height: 30, width: 30))
+                  : Icon(
+                      Icons.account_circle,
+                      size: 22,
+                    ),
+              title: Text("My Account")),
         ],
       ),
       appBar: AppBar(
         title: Text(appBarTitle),
-        actions: <Widget>[
-          Center(
-            child: InkWell(
-                customBorder:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(33)),
-                onTap: () {
-                  if (!userExists) {
-                    showDialog(
-                        context: context,
-                        child: Dialog(
-                          elevation: 20,
-                          shape: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                ListTile(
-                                  onTap: () async {
-                                    Navigator.pop(context);
-                                    await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => SignUp()));
-                                    checkUserIsLoggedInOrNot();
-                                  },
-                                  title: Text("Signup"),
-                                ),
-                                ListTile(
-                                  onTap: () async {
-                                    Navigator.pop(context);
-                                    await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => Login()));
-                                    checkUserIsLoggedInOrNot();
-                                    print("Login");
-                                  },
-                                  title: Text("Login"),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ));
-                  } else {
-                    showDialog(
-                        context: context,
-                        child: Dialog(
-                          shape: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                ListTile(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    signout();
-                                  },
-                                  title: Text("Sign out"),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ));
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: userExists
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(33),
-                          child: profilePic == null
-                              ? Icon(Icons.account_circle, size: 33)
-                              : Image.memory(profilePic, height: 33, width: 33))
-                      : Icon(
-                          Icons.account_circle,
-                          size: 33,
-                        ),
-                )),
-          ),
-          SizedBox(width: 20),
-        ],
+        centerTitle: true,
       ),
       body: Center(
         key: key,
@@ -189,13 +109,14 @@ class _MyHomePageState extends State<MyHomePage> {
         return _currentIndex == 0
             ? Home(name, email, userID)
             : _currentIndex == 1
-                ? BookMarkedPosts(name, email, userID)
+                ? Search(name, email, userID)
                 : _currentIndex == 2
                     ? AddPost(name, email, userID)
                     : _currentIndex == 3
-                        ? YourPosts(name, email, userID)
+                        ? Downloads(name, email, userID)
                         : _currentIndex == 4
-                            ? MyAccount(name, email, userID)
+                            ? MyAccount(userExists, isVerified, name, email,
+                                userID, checkUserIsLoggedInOrNot,signout)
                             : null;
       } else {
         return Center(
@@ -232,15 +153,40 @@ class _MyHomePageState extends State<MyHomePage> {
                     fontSize: 20,
                   )),
             ),
+            SizedBox(height: 40),
+            RaisedButton(
+              color: Colors.blue,
+              elevation: 10,
+              highlightElevation: 20,
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 75),
+              onPressed: () async {
+                signout();
+              },
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              child: Text("Sign Out",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                  )),
+            ),
           ],
         ));
       }
     } else {
-      return Center(
-          child: Text(
-        "Please Sign in/Sign up",
-        style: TextStyle(fontSize: 20),
-      ));
+      if (_currentIndex == 4) {
+        setState(() {
+          appBarTitle = "My Account";
+        });
+        return MyAccount(userExists, isVerified, name, email, userID,
+            checkUserIsLoggedInOrNot,signout);
+      } else {
+        return Center(
+            child: Text(
+          "Please Sign in/Sign up",
+          style: TextStyle(fontSize: 20),
+        ));
+      }
     }
   }
 

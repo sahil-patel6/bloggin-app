@@ -9,17 +9,25 @@ module.exports = function(app, db) {
           db.collection("users")
             .updateOne({ email: email }, { $set: { isVerified: true } })
             .then(value => {
-              console.log(value);
-              res.send({message:"Verified Succesffully",isVerified: true});
-              res.end();
+              console.log(value.modifiedCount);
+              db.collection("users")
+                .updateOne({ email: email }, { $set: { verificationCode: 0 } })
+                .then(val => {
+                  res.send({
+                    message: "Verified Succesffully",
+                    isVerified: true
+                  });
+                  res.end();
+                })
+                .catch(err => console.log(err));
             })
             .catch(err => {
               console.log(err);
-              res.send({message:"An error Occured", isVerified:false});
+              res.send({ message: "An error Occured", isVerified: false });
               res.end();
             });
         } else {
-          res.send({message:"Please enter correct otp",isVerified:false});
+          res.send({ message: "Please enter correct otp", isVerified: false });
           res.end();
         }
       });

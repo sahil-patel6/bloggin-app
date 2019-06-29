@@ -24,14 +24,15 @@ client.connect(function(err) {
   db.collection("users")
     .find({})
     .forEach(doc => {
-      console.log(doc);
+      console.log(doc.listOfPosts);
     });
 
-  var signup = require("./Routes/signup")(app, db);
-  var login = require("./Routes/login")(app, db);
-  var verify = require("./Routes/verify")(app, db);
-  var verficationEmail = require("./Routes/sendVerificationEmail")(app, db);
-  var forgotPassword = require("./Routes/forgotPassword")(app, db);
+  require("./Routes/signup")(app, db);
+  require("./Routes/login")(app, db);
+  require("./Routes/verify")(app, db);
+  require("./Routes/sendVerificationEmail")(app, db);
+  require("./Routes/forgotPassword")(app, db);
+  require("./Routes/addPost");
 });
 
 var port = process.env.port || 3000;

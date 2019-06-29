@@ -187,6 +187,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   }
 
   void changePassword() {
+    Scaffold.of(key.currentContext).hideCurrentSnackBar();
+    Scaffold.of(key.currentContext).showSnackBar(SnackBar(
+      content: Text("Changing Your Password"),
+    ));
     if (_formkeyForChangePassword.currentState.validate()) {
       http.post("$baseURL/forgotPassword", body: {
         "email": _emailController.text,
@@ -196,6 +200,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         Scaffold.of(key.currentContext).showSnackBar(SnackBar(
           content: Text(res.body),
         ));
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.pop(key.currentContext);
+        });
       });
     }
   }
@@ -211,8 +218,13 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   }
 
   void sendEmail() {
+    Scaffold.of(key.currentContext).hideCurrentSnackBar();
+    Scaffold.of(key.currentContext).showSnackBar(SnackBar(
+      content: Text("Sending OTP"),
+    ));
     http.post("$baseURL/sendVerificationEmail",
         body: {"email": _emailController.text}).then((res) {
+      Scaffold.of(key.currentContext).hideCurrentSnackBar();
       Scaffold.of(key.currentContext).showSnackBar(SnackBar(
         content: Text(res.body),
       ));

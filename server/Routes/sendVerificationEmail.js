@@ -14,8 +14,7 @@ module.exports = function(app, db) {
     var email = req.body.email;
     console.log(email);
 
-    var chars =
-      "0123456789";
+    var chars = "0123456789";
     var code = "";
     for (var i = 6; i > 0; --i) {
       code += chars[Math.round(Math.random() * (chars.length - 1))];
@@ -40,7 +39,7 @@ module.exports = function(app, db) {
         res.end();
       } else {
         console.log("Email sent: " + info.response);
-        res.send("Verfication Email Sent");
+        res.send("OTP Sent To Your Email");
         res.end();
       }
     });
